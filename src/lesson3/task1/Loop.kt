@@ -1,7 +1,7 @@
 @file:Suppress("UNUSED_PARAMETER")
 package lesson3.task1
 
-import kotlin.math.sqrt
+import kotlin.math.*
 
 /**
  * Пример
@@ -11,7 +11,7 @@ import kotlin.math.sqrt
 fun factorial(n: Int): Double {
     var result = 1.0
     for (i in 1..n) {
-        result = result * i // Please do not fix in master
+        result *= i // Please do not fix in master
     }
     return result
 }
@@ -66,7 +66,15 @@ fun digitCountInNumber(n: Int, m: Int): Int =
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-fun digitNumber(n: Int): Int = TODO()
+fun digitNumber(n: Int): Int {
+    var result = 0
+    var tmp = n
+    do {
+        result++
+        tmp /= 10
+    } while (tmp > 0)
+    return result
+}
 
 /**
  * Простая
@@ -74,7 +82,28 @@ fun digitNumber(n: Int): Int = TODO()
  * Найти число Фибоначчи из ряда 1, 1, 2, 3, 5, 8, 13, 21, ... с номером n.
  * Ряд Фибоначчи определён следующим образом: fib(1) = 1, fib(2) = 1, fib(n+2) = fib(n) + fib(n+1)
  */
-fun fib(n: Int): Int = TODO()
+//fun fib(n: Int): Int = when (n) {
+//    1, 2 -> 1
+//    else -> fib(n - 1) + fib(n - 2)
+//}
+
+fun fib(n: Int): Int {
+    return if(n == 1 || n==2) 1
+    else {
+        var result = 0
+        var fib1 = 1
+        var fib2 = 1
+
+        for (i in 3..n) {
+            result = fib1 + fib2
+
+            fib2 = fib1
+            fib1 = result
+        }
+        return result
+    }
+}
+
 
 /**
  * Простая
@@ -82,21 +111,37 @@ fun fib(n: Int): Int = TODO()
  * Для заданных чисел m и n найти наименьшее общее кратное, то есть,
  * минимальное число k, которое делится и на m и на n без остатка
  */
-fun lcm(m: Int, n: Int): Int = TODO()
+fun lcm(m: Int, n: Int): Int {
+    val max = max(m, n)
+    for (i in max..m * n step 1) {
+        if (i % m == 0 && i % n == 0) return i
+    }
+    return 0
+}
 
 /**
  * Простая
  *
  * Для заданного числа n > 1 найти минимальный делитель, превышающий 1
  */
-fun minDivisor(n: Int): Int = TODO()
+fun minDivisor(n: Int): Int {
+    for (i in 2..n step 1) {
+        if (n % i == 0) return i
+    }
+    return 1
+}
 
 /**
  * Простая
  *
  * Для заданного числа n > 1 найти максимальный делитель, меньший n
  */
-fun maxDivisor(n: Int): Int = TODO()
+fun maxDivisor(n: Int): Int {
+    for (i in n/2 downTo 1 step 1) {
+        if (n % i == 0) return i
+    }
+    return 1
+}
 
 /**
  * Простая
@@ -105,7 +150,13 @@ fun maxDivisor(n: Int): Int = TODO()
  * Взаимно простые числа не имеют общих делителей, кроме 1.
  * Например, 25 и 49 взаимно простые, а 6 и 8 -- нет.
  */
-fun isCoPrime(m: Int, n: Int): Boolean = TODO()
+fun isCoPrime(m: Int, n: Int): Boolean {
+    if (m % 2 == 0 && n % 2 == 0) return false
+    for (i in 3..sqrt(min(m, n).toDouble()).toInt() step 2) {
+        if (m % i == 0 && n % i == 0) return false
+    }
+    return max(m, n) % min(m, n) != 0
+}
 
 /**
  * Простая
@@ -114,7 +165,12 @@ fun isCoPrime(m: Int, n: Int): Boolean = TODO()
  * то есть, существует ли такое целое k, что m <= k*k <= n.
  * Например, для интервала 21..28 21 <= 5*5 <= 28, а для интервала 51..61 квадрата не существует.
  */
-fun squareBetweenExists(m: Int, n: Int): Boolean = TODO()
+fun squareBetweenExists(m: Int, n: Int): Boolean {
+    for (i in 1..sqrt(n.toDouble()).toInt()) {
+        if (i * i in m..n) return true
+    }
+    return false
+}
 
 /**
  * Средняя
@@ -132,7 +188,19 @@ fun squareBetweenExists(m: Int, n: Int): Boolean = TODO()
  * Написать функцию, которая находит, сколько шагов требуется для
  * этого для какого-либо начального X > 0.
  */
-fun collatzSteps(x: Int): Int = TODO()
+fun collatzSteps(x: Int): Int {
+    var stepsCount = 0
+    var result = x
+
+    while (result != 1) {
+        result = collatzStep(result)
+        stepsCount++
+    }
+
+    return stepsCount
+}
+
+fun collatzStep(x: Int) = if (x % 2 == 0) x / 2 else 3 * x + 1
 
 /**
  * Средняя
@@ -141,7 +209,19 @@ fun collatzSteps(x: Int): Int = TODO()
  * sin(x) = x - x^3 / 3! + x^5 / 5! - x^7 / 7! + ...
  * Нужную точность считать достигнутой, если очередной член ряда меньше eps по модулю
  */
-fun sin(x: Double, eps: Double): Double = TODO()
+fun sin(x: Double, eps: Double): Double {
+    val xDividedOnPI = x / PI / 2
+
+    val simplifiedX = if (xDividedOnPI % xDividedOnPI.toInt() == .0) x / xDividedOnPI else x
+    var sin = simplifiedX
+
+    for (i in 3..Int.MAX_VALUE step 2) {
+        val result = simplifiedX.pow(i) / factorial(i)
+        if (abs(result) < eps) break
+        sin = if (((i - 1) / 2) % 2 == 1) sin - result else sin + result
+    }
+    return sin
+}
 
 /**
  * Средняя
@@ -150,7 +230,19 @@ fun sin(x: Double, eps: Double): Double = TODO()
  * cos(x) = 1 - x^2 / 2! + x^4 / 4! - x^6 / 6! + ...
  * Нужную точность считать достигнутой, если очередной член ряда меньше eps по модулю
  */
-fun cos(x: Double, eps: Double): Double = TODO()
+fun cos(x: Double, eps: Double): Double {
+    val xDividedOnPI = x / PI / 2
+
+    val simplifiedX = if (xDividedOnPI % xDividedOnPI.toInt() == .0) x / xDividedOnPI else x
+    var cos = 1.0
+
+    for (i in 2..Int.MAX_VALUE step 2) {
+        val result = simplifiedX.pow(i) / factorial(i)
+        if (abs(result) < eps) break
+        cos = if ((i / 2) % 2 == 1) cos - result else cos + result
+    }
+    return cos
+}
 
 /**
  * Средняя
@@ -159,7 +251,18 @@ fun cos(x: Double, eps: Double): Double = TODO()
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-fun revert(n: Int): Int = TODO()
+fun revert(n: Int): Int {
+    var result = 0
+    var tmp = n
+
+    while (tmp > 0) {
+        result += tmp % 10
+        tmp /= 10
+        if (tmp > 0) result *= 10
+    }
+
+    return result
+}
 
 /**
  * Средняя
@@ -170,7 +273,28 @@ fun revert(n: Int): Int = TODO()
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-fun isPalindrome(n: Int): Boolean = TODO()
+fun isPalindrome(n: Int): Boolean {
+    val numberOfDigits = getNumberOfDigits(n)
+
+    if (numberOfDigits == 1) return true
+    for (i in 0 until numberOfDigits / 2 step 1) {
+        if (getNumbersNDigit(n, i + 1) != getNumbersNDigit(n, numberOfDigits - i))
+            return false
+    }
+    return true
+}
+
+fun getNumbersNDigit(number: Int, n: Int): Int = if (n == 1) number % 10 else (number / 10.toDouble().pow(n - 1).toInt()) % 10
+
+fun getNumberOfDigits(n: Int): Int {
+    var number = n
+    var numberOfDigits = 0
+    while (number > 0) {
+        numberOfDigits++
+        number /= 10
+    }
+    return numberOfDigits
+}
 
 /**
  * Средняя
@@ -180,7 +304,17 @@ fun isPalindrome(n: Int): Boolean = TODO()
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-fun hasDifferentDigits(n: Int): Boolean = TODO()
+fun hasDifferentDigits(n: Int): Boolean {
+    val numberOfDigits = getNumberOfDigits(n)
+
+    if (numberOfDigits == 1) return false
+
+    val firstDigit = n % 10
+    for (i in 2..numberOfDigits step 1) {
+        if (getNumbersNDigit(n, i) != firstDigit) return true
+    }
+    return false
+}
 
 /**
  * Сложная
@@ -191,7 +325,21 @@ fun hasDifferentDigits(n: Int): Boolean = TODO()
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-fun squareSequenceDigit(n: Int): Int = TODO()
+fun squareSequenceDigit(n: Int): Int {
+    if (n > 1) {
+        var digitsCount = 0
+        for (i in 1..Int.MAX_VALUE step 1) {
+            val tmp = i * i
+            val numberDigitsNumber = getNumberOfDigits(tmp)
+            digitsCount += numberDigitsNumber
+            if (digitsCount >= n) {
+                val digitNumber = digitsCount - n + 1
+                return getNumbersNDigit(tmp, digitNumber)
+            }
+        }
+    }
+    return 1
+}
 
 /**
  * Сложная
@@ -202,4 +350,18 @@ fun squareSequenceDigit(n: Int): Int = TODO()
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-fun fibSequenceDigit(n: Int): Int = TODO()
+fun fibSequenceDigit(n: Int): Int {
+    if (n > 1) {
+        var digitsCount = 0
+        for (i in 1..Int.MAX_VALUE step 1) {
+            val tmp = fib(i)
+            val numberDigitsNumber = getNumberOfDigits(tmp)
+            digitsCount += numberDigitsNumber
+            if (digitsCount >= n) {
+                val digitNumber = digitsCount - n + 1
+                return getNumbersNDigit(tmp, digitNumber)
+            }
+        }
+    }
+    return 1
+}
